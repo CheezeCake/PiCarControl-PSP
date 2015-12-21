@@ -1,0 +1,6 @@
+EBOOT.PBP
+PARAM.SFO
+PiCarControl.elf
+PiCarControl.prx
+*.o
+*.swp
