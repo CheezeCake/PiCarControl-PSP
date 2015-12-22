@@ -10,6 +10,6 @@ PSP_EBOOT_TITLE = PiCar Control
 BUILD_PRX = 1
 PSP_FW_VERSION = 660
 
-OBJS = main.o wifi.o
+OBJS = src/main.o src/wifi.o
 
 include $(PSPSDK)/lib/build.mak
