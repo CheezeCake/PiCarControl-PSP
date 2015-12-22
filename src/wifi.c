@@ -103,17 +103,17 @@ static inline bool psp_wlan_is_on(void)
 int wifi_connect_ssid(const char* ssid)
 {
 	int confid = -1;
-	int iNetIndex = 1; // skip index 0
-	netData configData;
+	int inet_index = 1; // skip index 0
+	netData config_data;
 
 	pspDebugScreenPrintf("Searching for wifi configurations...\n");
-	while (confid == -1 && sceUtilityCheckNetParam(iNetIndex) == 0) {
-		sceUtilityGetNetParam(iNetIndex, PSP_NETPARAM_NAME, &configData);
-		pspDebugScreenPrintf("\t%d : %s\n", iNetIndex, configData.asString);
-		if (strcmp(ssid, configData.asString) == 0)
-			confid = iNetIndex;
+	while (confid == -1 && sceUtilityCheckNetParam(inet_index) == 0) {
+		sceUtilityGetNetParam(inet_index, PSP_NETPARAM_NAME, &config_data);
+		pspDebugScreenPrintf("\t%d : %s\n", inet_index, config_data.asString);
+		if (strcmp(ssid, config_data.asString) == 0)
+			confid = inet_index;
 
-		++iNetIndex;
+		++inet_index;
 	}
 
 	if (confid == -1) {
@@ -138,7 +138,7 @@ int wifi_connect_confid(int confid)
 		return 2;
 	}
 
-	int lastState = -1;
+	int last_state = -1;
 	while (1) {
 		int state;
 		if (sceNetApctlGetState(&state) != 0) {
@@ -147,8 +147,8 @@ int wifi_connect_confid(int confid)
 			return 3;
 		}
 
-		if (state != lastState) {
-			lastState = state;
+		if (state != last_state) {
+			last_state = state;
 
 			pspDebugScreenPrintf("state = %d\n", state);
 
