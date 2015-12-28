@@ -1,10 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <pspkernel.h>
 #include <pspdebug.h>
-#include <psphttp.h>
-#include <psputility_modules.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 #include "wifi.h"
@@ -13,11 +12,15 @@
 PSP_MODULE_INFO("PiCarControl", PSP_MODULE_USER, 1, 0);
 PSP_HEAP_SIZE_KB(7 * 1024);
 
-SDL_Surface* screen = NULL;
+bool done = false;
 
 int exit_callback(int arg1, int arg2, void* common)
 {
-	sceKernelExitGame();
+	if (done)
+		sceKernelExitGame();
+	else
+		done = true;
+
 	return 0;
 }
 
@@ -52,22 +55,31 @@ int main(void)
 
 		SDL_Init(SDL_INIT_VIDEO);
 		IMG_Init(IMG_INIT_JPG);
-		screen = SDL_SetVideoMode(480, 272, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);
+		SDL_Surface* screen = SDL_SetVideoMode(480, 272, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);
 
 		struct Mjpgstreamer_connection con;
 		if (mjpgstreamer_http_client_connect(&con, "192.168.1.10", 8080, "/?action=stream") == 0) {
 			char* frame = NULL;
 			size_t size = 0;
-			while (mjpgstreamer_http_client_read_frame(&con, &frame, &size) == 0) {
+
+			while (!done && mjpgstreamer_http_client_read_frame(&con, &frame, &size) == 0) {
 				SDL_RWops* img = SDL_RWFromConstMem(frame, size);
+
 				if (img) {
 					SDL_Surface* img_surface = IMG_LoadJPG_RW(img);
+
 					if (img_surface) {
 						SDL_BlitSurface(img_surface, NULL, screen, &(SDL_Rect) { 0, 0 });
 						SDL_Flip(screen);
 					}
+					else {
+						printf("loadjpg failed : %s | 0x%x %d\n", IMG_GetError(), frame, size);
+					}
 
 					SDL_FreeSurface(img_surface);
+				}
+				else {
+					printf("rwfromconstmem failed :  | 0x%x %d\n", SDL_GetError(), frame, size);
 				}
 			}
 
@@ -77,9 +89,8 @@ int main(void)
 		mjpgstreamer_http_client_disconnect(&con);
 
 		wifi_disconnect();
-		sceKernelDelayThread(10 * 1000 * 1000);
-		wifi_term();
 		sceKernelDelayThread(2 * 1000 * 1000);
+		wifi_term();
 
 		IMG_Quit();
 		SDL_Quit();
@@ -88,7 +99,9 @@ int main(void)
 		pspDebugScreenPrintf("wifi_init() failed : %d\n", err);
 	}
 
-	sceKernelSleepThread();
+	/* sceKernelSleepThread(); */
+	sceKernelDelayThread(2 * 1000 * 1000);
+	sceKernelExitGame();
 
 	return 0;
 }
