@@ -1,7 +1,8 @@
 PSPSDK = $(shell psp-config --pspsdk-path)
 
 CFLAGS = -std=c99 #-g -ggdb
-LIBS = -lSDL -lSDL_image -lGL -ljpeg -lpng -lz -lm -lpspwlan -lpsphttp -lpspgu -lpspaudio -lpsphprm -lpspirkeyb -lpspvfpu -lpsprtc -lpsppower
+LIBS = -lSDL -lSDL_image -lGL -ljpeg -lpng -lz -lm -lpspwlan -lpsphttp -lpspgu \
+	   -lpspaudio -lpsphprm -lpspirkeyb -lpspvfpu -lpsprtc -lpsppower -lpspjpeg
 
 TARGET = PiCarControl
 EXTRA_TARGETS = EBOOT.PBP
