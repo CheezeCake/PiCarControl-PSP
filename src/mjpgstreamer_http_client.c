@@ -99,15 +99,20 @@ int mjpgstreamer_http_client_read_frame(const struct Mjpgstreamer_connection* co
 	memcpy(*jpg_frame, soi_marker, 2);
 	content_length -= 2;
 
+	int block_size = 2048;
 	int index = 2;
 	n = 1;
-	// TODO: read by block
+
 	while (n > 0 && index < content_length) {
-		n = sceHttpReadData(con->request_id, *jpg_frame + index, 1);
+		n = sceHttpReadData(con->request_id, *jpg_frame + index, block_size);
 		index += n;
+
+		int diff = content_length - index;
+		if (diff < block_size)
+			block_size = diff;
 	}
 
-	*jpg_frame_size = index;
+	*jpg_frame_size = (index == 2) ? 0 : index;
 
 	return (index < content_length);
 }
