@@ -3,6 +3,8 @@
 
 #include <stddef.h>
 
+#include "jpeg_frame.h"
+
 struct Mjpgstreamer_connection
 {
 	int template_id;
@@ -13,7 +15,7 @@ struct Mjpgstreamer_connection
 int mjpgstreamer_http_client_connect(struct Mjpgstreamer_connection* con,
 		char* ip, unsigned short port, char* path);
 int mjpgstreamer_http_client_read_frame(const struct Mjpgstreamer_connection* con,
-		char** jpg_frame, size_t* jpg_frame_size);
+		struct Jpeg_frame* jpg_frame);
 void mjpgstreamer_http_client_disconnect(const struct Mjpgstreamer_connection* con);
 
 

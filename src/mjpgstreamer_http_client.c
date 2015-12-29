@@ -1,7 +1,9 @@
 #include <stdlib.h>
 #include <string.h>
+
 #include <pspkernel.h>
 #include <psphttp.h>
+
 #include "mjpgstreamer_http_client.h"
 
 int mjpgstreamer_http_client_connect(struct Mjpgstreamer_connection* con,
@@ -87,7 +89,7 @@ static int read_header(int request_id, char* buffer,
 }
 
 int mjpgstreamer_http_client_read_frame(const struct Mjpgstreamer_connection* con,
-		char** jpg_frame, size_t* jpg_frame_size)
+		struct Jpeg_frame* jpg_frame)
 {
 #define BUFFER_SIZE 256
 	static char buffer[BUFFER_SIZE];
@@ -102,24 +104,26 @@ int mjpgstreamer_http_client_read_frame(const struct Mjpgstreamer_connection* co
 
 	int content_length = parse_content_length(buffer, length);
 
-	if (!*jpg_frame || *jpg_frame_size == 0)
-		*jpg_frame = malloc(content_length);
-	else if (*jpg_frame_size < content_length)
-		*jpg_frame = realloc(*jpg_frame, content_length);
+	if (!jpg_frame->frame)
+		jpg_frame->frame = malloc(content_length);
+	else if (jpg_frame->size < content_length)
+		jpg_frame->frame = realloc(jpg_frame->frame, content_length);
 
-	if (!*jpg_frame)
+	if (!jpg_frame->frame) {
+		jpg_frame->size = 0;
 		return 1;
+	}
 
 	// copy the first bytes of the image we read when reading the header
 	n = length - marker_index_buff;
-	memcpy(*jpg_frame, &buffer[marker_index_buff], n);
+	memcpy(jpg_frame->frame, &buffer[marker_index_buff], n);
 	content_length -= n;
 
 	int block_size = 2048;
 	int index = 2;
 
 	while (index < content_length) {
-		if ((n = sceHttpReadData(con->request_id, *jpg_frame + index, block_size)) <= 0)
+		if ((n = sceHttpReadData(con->request_id, jpg_frame->frame + index, block_size)) <= 0)
 			break;
 
 		index += n;
@@ -129,7 +133,7 @@ int mjpgstreamer_http_client_read_frame(const struct Mjpgstreamer_connection* co
 			block_size = diff;
 	}
 
-	*jpg_frame_size = (index == 2) ? 0 : index;
+	jpg_frame->size = (index == 2) ? 0 : index;
 
 	return (index < content_length);
 }
