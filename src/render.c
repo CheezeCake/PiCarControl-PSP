@@ -108,6 +108,8 @@ int render_init(void)
 
 	sceDisplayWaitVblankStart();
 	sceGuDisplay(1);
+
+	return 0;
 }
 
 static int decode_jpeg_frame_to_screen(struct Jpeg_frame* frame)

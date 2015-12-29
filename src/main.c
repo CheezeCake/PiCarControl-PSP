@@ -57,8 +57,10 @@ int main(void)
 			struct Jpeg_frame frame;
 			jpeg_frame_init(&frame);
 
-			if (render_init() != 0)
+			if (render_init() != 0) {
+				pspDebugScreenPrintf("render_init() failed\n");
 				done = true;
+			}
 
 			while (!done && mjpgstreamer_http_client_read_frame(&con, &frame) == 0)
 				render_jpeg_frame(&frame);
