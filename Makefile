@@ -2,7 +2,7 @@ PSPSDK = $(shell psp-config --pspsdk-path)
 
 CFLAGS = -std=c99 -pipe #-g -ggdb
 LIBS = -lpspwlan -lpsphttp -lpspgu -lpspaudio -lpsphprm -lpspirkeyb -lpspvfpu \
-	   -lpsprtc -lpsppower -lpspjpeg -lpspgu
+	   -lpsprtc -lpsppower -lpspjpeg
 
 TARGET = PiCarControl
 EXTRA_TARGETS = EBOOT.PBP
@@ -12,6 +12,6 @@ BUILD_PRX = 1
 PSP_FW_VERSION = 660
 
 OBJS = src/main.o src/wifi.o src/mjpgstreamer_http_client.o src/render.o \
-	   src/vram.o
+	   src/vram.o src/control.o
 
 include $(PSPSDK)/lib/build.mak
