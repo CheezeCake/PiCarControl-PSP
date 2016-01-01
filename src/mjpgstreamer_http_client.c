@@ -140,7 +140,10 @@ int mjpgstreamer_http_client_read_frame(const struct Mjpgstreamer_connection* co
 
 void mjpgstreamer_http_client_disconnect(const struct Mjpgstreamer_connection* con)
 {
-	sceHttpDeleteRequest(con->request_id);
-	sceHttpDeleteConnection(con->connection_id);
-	sceHttpDeleteTemplate(con->template_id);
+	if (con->request_id != -1)
+		sceHttpDeleteRequest(con->request_id);
+	if (con->connection_id != -1)
+		sceHttpDeleteConnection(con->connection_id);
+	if (con->template_id != -1)
+		sceHttpDeleteTemplate(con->template_id);
 }
