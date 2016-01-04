@@ -51,32 +51,6 @@ static int _inet_pton(const char* src_ip, struct in_addr* dst)
 
 static int control_worker_thread(SceSize args, void* argp)
 {
-	SceKernelMsgPacket* message;
-	while (1) {
-		s8 p, x, y;
-		sceKernelReceiveMbx(mbxId, (void**)&message, NULL);
-		p = message->dummy[PREFIX];
-		x = message->dummy[X];
-		y = message->dummy[Y];
-
-		printf("worker : %c, %d, %d\n", p, x, y);
-
-		send(sock, &p, 1, 0);
-		perror("send\n");
-		send(sock, &x, 1, 0);
-		perror("send\n");
-		send(sock, &y, 1, 0);
-		perror("send\n");
-	}
-
-	return 0;
-}
-
-int control_init(const char* ip)
-{
-	sceCtrlSetSamplingCycle(0);
-	sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
-
 	struct sockaddr_in sa;
 	sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
@@ -96,6 +70,30 @@ int control_init(const char* ip)
 		control_term();
 		return 1;
 	}
+
+	SceKernelMsgPacket* message;
+
+	while (1) {
+		s8 p, x, y;
+		sceKernelReceiveMbx(mbxId, (void**)&message, NULL);
+		p = message->dummy[PREFIX];
+		x = message->dummy[X];
+		y = message->dummy[Y];
+
+		printf("worker : %c, %d, %d\n", p, x, y);
+
+		send(sock, &p, 1, 0);
+		send(sock, &x, 1, 0);
+		send(sock, &y, 1, 0);
+	}
+
+	return 0;
+}
+
+int control_init(const char* ip)
+{
+	sceCtrlSetSamplingCycle(0);
+	sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
 
 	if ((mbxId = sceKernelCreateMbx("control_mbx", 0, NULL)) < 0) {
 		control_term();
@@ -126,7 +124,7 @@ void control_poll_event(void)
 				// send 0, 0
 				glob_msg.dummy[PREFIX] = 'm';
 				glob_msg.dummy[X] = 0;
-				glob_msg.dummy[X] = 0;
+				glob_msg.dummy[Y] = 0;
 				sceKernelSendMbx(mbxId, &glob_msg);
 			}
 	}
