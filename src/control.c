@@ -51,26 +51,7 @@ static int _inet_pton(const char* src_ip, struct in_addr* dst)
 
 static int control_worker_thread(SceSize args, void* argp)
 {
-	struct sockaddr_in sa;
-	sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-
-	if (sock == -1) {
-		pspDebugScreenPrintf("cannot create socket : %s\n", strerror(errno));
-		return 1;
-	}
-
-	memset(&sa, 0, sizeof(sa));
-
-	sa.sin_family = AF_INET;
-	sa.sin_port = htons(1100);
-	_inet_pton(ip, &sa.sin_addr);
-
-	if (connect(sock, (struct sockaddr*)&sa, sizeof(sa)) == -1) {
-		pspDebugScreenPrintf("connect failed : %s\n", strerror(errno));
-		control_term();
-		return 1;
-	}
-
+	printf("worker start\n");
 	SceKernelMsgPacket* message;
 
 	while (1) {
@@ -94,6 +75,27 @@ int control_init(const char* ip)
 {
 	sceCtrlSetSamplingCycle(0);
 	sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
+
+	struct sockaddr_in sa;
+	sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+	if (sock == -1) {
+		pspDebugScreenPrintf("cannot create socket : %s\n", strerror(errno));
+		return 1;
+	}
+
+	memset(&sa, 0, sizeof(sa));
+
+	sa.sin_family = AF_INET;
+	sa.sin_port = htons(1100);
+	_inet_pton(ip, &sa.sin_addr);
+
+	if (connect(sock, (struct sockaddr*)&sa, sizeof(sa)) == -1) {
+		pspDebugScreenPrintf("connect failed : %s\n", strerror(errno));
+		control_term();
+		return 1;
+	}
+
 
 	if ((mbxId = sceKernelCreateMbx("control_mbx", 0, NULL)) < 0) {
 		control_term();
@@ -125,7 +127,10 @@ void control_poll_event(void)
 				glob_msg.dummy[PREFIX] = 'm';
 				glob_msg.dummy[X] = 0;
 				glob_msg.dummy[Y] = 0;
-				sceKernelSendMbx(mbxId, &glob_msg);
+				/* sceKernelSendMbx(mbxId, &glob_msg); */
+				send(sock, &glob_msg.dummy[PREFIX], 1, 0);
+				send(sock, &glob_msg.dummy[X], 1, 0);
+				send(sock, &glob_msg.dummy[Y], 1, 0);
 			}
 	}
 	else {
@@ -142,7 +147,48 @@ void control_poll_event(void)
 		glob_msg.dummy[PREFIX] = 'm';
 		glob_msg.dummy[X] = x;
 		glob_msg.dummy[Y] = y;
-		sceKernelSendMbx(mbxId, &glob_msg);
+		/* sceKernelSendMbx(mbxId, &glob_msg); */
+		send(sock, &glob_msg.dummy[PREFIX], 1, 0);
+		send(sock, &glob_msg.dummy[X], 1, 0);
+		send(sock, &glob_msg.dummy[Y], 1, 0);
+	}
+
+	const int cv = 300;
+	if (pad.Buttons & PSP_CTRL_LEFT) {
+		glob_msg.dummy[PREFIX] = 'c';
+		glob_msg.dummy[X] = cv;
+		glob_msg.dummy[Y] = 0;
+
+		send(sock, &glob_msg.dummy[PREFIX], 1, 0);
+		send(sock, &glob_msg.dummy[X], 1, 0);
+		send(sock, &glob_msg.dummy[Y], 1, 0);
+	}
+	else if (pad.Buttons & PSP_CTRL_RIGHT) {
+		glob_msg.dummy[PREFIX] = 'c';
+		glob_msg.dummy[X] = -cv;
+		glob_msg.dummy[Y] = 0;
+
+		send(sock, &glob_msg.dummy[PREFIX], 1, 0);
+		send(sock, &glob_msg.dummy[X], 1, 0);
+		send(sock, &glob_msg.dummy[Y], 1, 0);
+	}
+	else if (pad.Buttons & PSP_CTRL_UP) {
+		glob_msg.dummy[PREFIX] = 'c';
+		glob_msg.dummy[X] = 0;
+		glob_msg.dummy[Y] = cv;
+
+		send(sock, &glob_msg.dummy[PREFIX], 1, 0);
+		send(sock, &glob_msg.dummy[X], 1, 0);
+		send(sock, &glob_msg.dummy[Y], 1, 0);
+	}
+	else if (pad.Buttons & PSP_CTRL_DOWN) {
+		glob_msg.dummy[PREFIX] = 'c';
+		glob_msg.dummy[X] = 0;
+		glob_msg.dummy[Y] = -cv;
+
+		send(sock, &glob_msg.dummy[PREFIX], 1, 0);
+		send(sock, &glob_msg.dummy[X], 1, 0);
+		send(sock, &glob_msg.dummy[Y], 1, 0);
 	}
 }
 
