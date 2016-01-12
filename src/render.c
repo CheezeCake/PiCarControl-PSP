@@ -119,8 +119,12 @@ static int decode_jpeg_frame_to_screen(struct Jpeg_frame* frame)
 		return 1;
 	}
 
-	for (int i = 0; i < SCREEN_HEIGHT; i++)
-		memcpy(&screen[i * BUFFER_WIDTH], &rgba[i * SCREEN_WIDTH],  SCREEN_WIDTH * 4);
+	u32* _screen = screen;
+	u32* _rgba = rgba;
+	for (int i = 0; i < SCREEN_HEIGHT;
+			i++, _screen += BUFFER_WIDTH, _rgba += SCREEN_WIDTH)
+		memcpy(_screen, _rgba, SCREEN_WIDTH * 4);
+
 
 	return 0;
 }
