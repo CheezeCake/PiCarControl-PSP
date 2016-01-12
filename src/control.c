@@ -153,7 +153,7 @@ void control_poll_event(void)
 		send(sock, &glob_msg.dummy[Y], 1, 0);
 	}
 
-	const int cv = 300;
+	const u8 cv = 255;
 	if (pad.Buttons & PSP_CTRL_LEFT) {
 		glob_msg.dummy[PREFIX] = 'c';
 		glob_msg.dummy[X] = cv;
