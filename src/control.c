@@ -25,8 +25,10 @@
 
 static bool previous_state_neutral = true;
 static int sock = -1;
+/*
 static SceUID mbxId = -1;
 static SceUID worker_thread = -1;
+*/
 static SceKernelMsgPacket glob_msg;
 
 static int _inet_pton(const char* src_ip, struct in_addr* dst)
@@ -49,6 +51,7 @@ static int _inet_pton(const char* src_ip, struct in_addr* dst)
 	return 0;
 }
 
+/*
 static int control_worker_thread(SceSize args, void* argp)
 {
 	printf("worker start\n");
@@ -70,6 +73,7 @@ static int control_worker_thread(SceSize args, void* argp)
 
 	return 0;
 }
+*/
 
 int control_init(const char* ip)
 {
@@ -97,6 +101,7 @@ int control_init(const char* ip)
 	}
 
 
+	/*
 	if ((mbxId = sceKernelCreateMbx("control_mbx", 0, NULL)) < 0) {
 		control_term();
 		return 2;
@@ -109,6 +114,7 @@ int control_init(const char* ip)
 	}
 
 	sceKernelStartThread(worker_thread, 0, NULL);
+	*/
 
 	return 0;
 }
@@ -194,6 +200,7 @@ void control_poll_event(void)
 
 void control_term(void)
 {
+	/*
 	if (worker_thread != -1) {
 		sceKernelTerminateDeleteThread(worker_thread);
 		worker_thread = -1;
@@ -203,6 +210,7 @@ void control_term(void)
 		sceKernelDeleteMbx(mbxId);
 		mbxId = -1;
 	}
+	*/
 
 	if (sock != -1) {
 		shutdown(sock, SHUT_RDWR);
