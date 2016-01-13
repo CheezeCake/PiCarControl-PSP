@@ -153,10 +153,10 @@ void control_poll_event(void)
 		send(sock, &glob_msg.dummy[Y], 1, 0);
 	}
 
-	const u8 cv = 255;
+	const int cv = 300;
 	if (pad.Buttons & PSP_CTRL_LEFT) {
 		glob_msg.dummy[PREFIX] = 'c';
-		glob_msg.dummy[X] = cv;
+		glob_msg.dummy[X] = -cv;
 		glob_msg.dummy[Y] = 0;
 
 		send(sock, &glob_msg.dummy[PREFIX], 1, 0);
@@ -165,7 +165,7 @@ void control_poll_event(void)
 	}
 	else if (pad.Buttons & PSP_CTRL_RIGHT) {
 		glob_msg.dummy[PREFIX] = 'c';
-		glob_msg.dummy[X] = -cv;
+		glob_msg.dummy[X] = cv;
 		glob_msg.dummy[Y] = 0;
 
 		send(sock, &glob_msg.dummy[PREFIX], 1, 0);
@@ -175,7 +175,7 @@ void control_poll_event(void)
 	else if (pad.Buttons & PSP_CTRL_UP) {
 		glob_msg.dummy[PREFIX] = 'c';
 		glob_msg.dummy[X] = 0;
-		glob_msg.dummy[Y] = cv;
+		glob_msg.dummy[Y] = -cv;
 
 		send(sock, &glob_msg.dummy[PREFIX], 1, 0);
 		send(sock, &glob_msg.dummy[X], 1, 0);
@@ -184,7 +184,7 @@ void control_poll_event(void)
 	else if (pad.Buttons & PSP_CTRL_DOWN) {
 		glob_msg.dummy[PREFIX] = 'c';
 		glob_msg.dummy[X] = 0;
-		glob_msg.dummy[Y] = -cv;
+		glob_msg.dummy[Y] = cv;
 
 		send(sock, &glob_msg.dummy[PREFIX], 1, 0);
 		send(sock, &glob_msg.dummy[X], 1, 0);
