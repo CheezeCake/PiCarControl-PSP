@@ -98,6 +98,7 @@ int main(void)
 	}
 	else {
 		run();
+		sceKernelDelayThread(2 * 1000 * 1000);
 		wifi_disconnect();
 		printf("wifi_disconnect done\n");
 	}
@@ -106,7 +107,7 @@ int main(void)
 	wifi_term();
 	printf("wifi_term done\n");
 
-	sceKernelDelayThread(2 * 1000 * 1000);
+	sceKernelDelayThread(1 * 1000 * 1000);
 	sceKernelExitGame();
 
 	return 0;
